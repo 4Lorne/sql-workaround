@@ -1,38 +1,30 @@
-tk.Label(root, text="Input File").grid(row=0, column=0)
-input_file_entry = tk.Entry(root)
-input_file_entry.grid(row=0, column=1)
-input_file_button = tk.Button(root, text="Browse", command=select_input_file)
-input_file_button.grid(row=0, column=2)
+import tkinter as tk
+from tkinter import filedialog
 
-strings_var = tk.BooleanVar()
-strings_checkbox = tk.Checkbutton(root, text="Strings", variable=strings_var)
-strings_checkbox.grid(row=1, column=0)
+def wrap_strings_with_quotes(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    
+    wrapped_strings = [f'"{line.strip()}",' for line in lines[:-1]]
+    wrapped_strings.append(f'"{lines[-1].strip()}"')
+    
+    return wrapped_strings
 
-tk.Label(root, text="Table Name").grid(row=2, column=0)
-table_name_entry = tk.Entry(root)
-table_name_entry.grid(row=2, column=1, padx=(10, 10), pady=(10, 10))
-table_name_entry.insert(0, "table1")
+def open_file_dialog():
+    file_path = filedialog.askopenfilename(filetypes=[('Text Files', '*.txt')])
+    if file_path:
+        wrapped_strings = wrap_strings_with_quotes(file_path)
+        wrapped_text = '\n'.join(wrapped_strings)
+        text_field.delete(1.0, tk.END)  # Clear the text field
+        text_field.insert(tk.END, wrapped_text)  # Insert the wrapped strings
 
-tk.Label(root, text="Columns").grid(row=3, column=0)
-columns_to_search_entry = tk.Entry(root)
-columns_to_search_entry.grid(row=3, column=1, padx=(10, 10), pady=(10, 10))
-columns_to_search_entry.insert(0, "column1, column2, column3")
+root = tk.Tk()
 
-tk.Label(root, text="Value to Find").grid(row=4, column=0)
-value_to_find_entry = tk.Entry(root)
-value_to_find_entry.grid(row=4, column=1, padx=(10, 10), pady=(10, 10))
-value_to_find_entry.insert(0, "value1")
+# Create a text field
+text_field = tk.Text(root)
+text_field.pack()
 
-process_button = tk.Button(root, text="Process File", command=process_file)
-process_button.grid(row=5, column=0, columnspan=5, padx=(10, 10), pady=(10, 10))
-
-output_text = tk.Text(root, height=10, width=50)
-output_text.grid(row=6, column=0, columnspan=5, padx=(10, 10), pady=(10, 10))
-
-copy_button = tk.Button(root, text="Copy Output", command=copy_output)
-copy_button.grid(row=7, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
-
-save_button = tk.Button(root, text="Save Output", command=save_output)
-save_button.grid(row=7, column=1, columnspan=2, padx=(10, 10), pady=(10, 10))
+button = tk.Button(root, text='Open File', command=open_file_dialog)
+button.pack()
 
 root.mainloop()

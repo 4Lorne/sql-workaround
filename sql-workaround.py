@@ -23,7 +23,7 @@ def process_file():
     columns_to_search = columns_to_search_entry.get().split(',')
     value_to_find = value_to_find_entry.get()
 
-    initial_query = "select {} from {} where {} in (".format(",".join(columns_to_search), table_name, value_to_find)
+    initial_query = "select {} from {} where ({}, 0) in (".format(",".join(columns_to_search), table_name, value_to_find)
 
     with open(input_file, "r") as f:
         lines = [line.strip() for line in f.readlines()]
@@ -35,10 +35,11 @@ def process_file():
         ids = [line for line in chunk]
         if strings_var.get():
             ids = ['"{}"'.format(id) for id in ids]
+        tuples = ["({}, 0)".format(id) for id in ids]
         if i != 0:
-            output_lines.append('OR {} in ({})'.format(value_to_find, ",".join(ids)))
+            output_lines.append('OR ({}, 0) in ({})'.format(value_to_find, ",".join(tuples)))
         else:
-            output_lines.append(initial_query + ",".join(ids) + ")")
+            output_lines.append(initial_query + ",".join(tuples) + ")")
 
     output_string = "\n".join(output_lines)
     output_text.delete(1.0, tk.END)
