@@ -10,12 +10,25 @@ def wrap_strings_with_quotes(file_path=None, values=None):
     elif values:
         lines = values.split('\n')
     
-    if wrap_strings:
-        wrapped_strings = [f"'{line.strip()}'," for line in lines[:-1]]
-        wrapped_strings.append(f"'{lines[-1].strip()}'")
-    else:
-        wrapped_strings = [f"{line.strip()}," for line in lines[:-1]]
-        wrapped_strings.append(lines[-1].strip())
+    wrapped_strings = []
+    for line in lines:
+        stripped_line = line.strip()
+        # Check if the string is already wrapped in single quotes
+        if stripped_line.startswith("'") and (stripped_line.endswith("',") or stripped_line.endswith("'")):
+            wrapped_strings.append(stripped_line)
+        else:
+            # Check if the string is a number
+            if stripped_line.isdigit():
+                wrapped_strings.append(f"{stripped_line},")
+            else:
+                if wrap_strings:
+                    wrapped_strings.append(f"'{stripped_line}',")
+                else:
+                    wrapped_strings.append(f"{stripped_line},")
+    
+    # Remove the comma from the last value
+    if wrapped_strings:
+        wrapped_strings[-1] = wrapped_strings[-1].rstrip(',')
     
     return wrapped_strings
 
@@ -29,6 +42,9 @@ def open_file_dialog():
 
 def process_values():
     values = text_field.get(1.0, tk.END).strip()
+    if not values:  # Check if the text field is empty
+        print("Text field is empty. Please enter some text.")
+        return  # If it is, return without doing anything
     wrapped_strings = wrap_strings_with_quotes(values=values)
     wrapped_text = '\n'.join(wrapped_strings)
     text_field.delete(1.0, tk.END)  # Clear the text field
