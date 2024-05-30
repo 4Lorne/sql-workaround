@@ -47,8 +47,14 @@ def process_values():
         return  # If it is, return without doing anything
     wrapped_strings = wrap_strings_with_quotes(values=values)
     wrapped_text = '\n'.join(wrapped_strings)
+    query = query_entry.get()
+    query_with_values = query.replace('{}', wrapped_text)
     text_field.delete(1.0, tk.END)  # Clear the text field
-    text_field.insert(tk.END, wrapped_text)  # Insert the wrapped strings
+    text_field.insert(tk.END, query_with_values)  # Insert the query with values
+
+    # Copy the processed text to the clipboard
+    root.clipboard_clear()
+    root.clipboard_append(query_with_values)
 
 def toggle_wrap_strings():
     global wrap_strings
@@ -59,6 +65,11 @@ root = tk.Tk()
 # Create a text field
 text_field = tk.Text(root)
 text_field.pack()
+
+# Create an entry for the query
+query_entry = tk.Entry(root)
+query_entry.pack()
+query_entry.insert(0, "SELECT * IN Example1 WHERE ({})")  # Default query
 
 button = tk.Button(root, text='Open File', command=open_file_dialog)
 button.pack()
