@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import ttk
+
 from tkinter import filedialog
 
 wrap_strings = True
@@ -40,6 +42,11 @@ def open_file_dialog():
         text_field.delete(1.0, tk.END)  # Clear the text field
         text_field.insert(tk.END, wrapped_text)  # Insert the wrapped strings
 
+root = tk.Tk()
+
+notebook = ttk.Notebook(root)
+notebook.pack()
+
 def process_values():
     values = text_field.get(1.0, tk.END).strip()
     if not values:  # Check if the text field is empty
@@ -49,8 +56,18 @@ def process_values():
     wrapped_text = '\n'.join(wrapped_strings)
     query = query_entry.get()
     query_with_values = query.replace('{}', wrapped_text)
-    text_field.delete(1.0, tk.END)  # Clear the text field
-    text_field.insert(tk.END, query_with_values)  # Insert the query with values
+    
+    # Create a new tab with a new text field
+    new_tab = tk.Frame(notebook)
+    new_text_field = tk.Text(new_tab)
+    new_text_field.pack()
+    new_text_field.insert(tk.END, query_with_values)  # Insert the query with values
+
+    # Add a button that closes the tab
+    close_button = tk.Button(new_tab, text="Close", command=lambda: notebook.forget(new_tab))
+    close_button.pack()
+
+    notebook.add(new_tab, text=f'Tab {notebook.index("end")+1}')  # Add the new tab to the notebook
 
     # Copy the processed text to the clipboard
     root.clipboard_clear()
@@ -60,7 +77,7 @@ def toggle_wrap_strings():
     global wrap_strings
     wrap_strings = not wrap_strings
 
-root = tk.Tk()
+
 
 # Create a text field
 text_field = tk.Text(root)
